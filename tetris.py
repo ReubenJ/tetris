@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
+# NOTE FOR WINDOWS USERS:
+# You can download a "exefied" version of this game at:
+# http://kch42.de/progs/tetris_py_exefied.zip
+# If a DLL is missing or something like this, write an E-Mail (kevin@kch42.de)
+# or leave a comment on this gist.
+
 # Very simple tetris implementation
 # 
 # Control keys:
