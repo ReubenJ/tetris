@@ -115,18 +115,24 @@ class TetrisApp(object):
 	def __init__(self):
 		pygame.init()
 		pygame.key.set_repeat(250,25)
-		self.width = config['cell_size']*config['cols']
+		self.width = config['cell_size']*(config['cols']+6)
 		self.height = config['cell_size']*config['rows']
+		self.rlim = config['cell_size']*config['cols']
+		
+		self.default_font =  pygame.font.Font(
+			pygame.font.get_default_font(), 12)
 		
 		self.screen = pygame.display.set_mode((self.width, self.height))
 		pygame.event.set_blocked(pygame.MOUSEMOTION) # We do not need
 		                                             # mouse movement
 		                                             # events, so we
 		                                             # block them.
+		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.init_game()
 	
 	def new_stone(self):
-		self.stone = tetris_shapes[rand(len(tetris_shapes))]
+		self.stone = self.next_stone[:]
+		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.stone_x = int(config['cols'] / 2 - len(self.stone[0])/2)
 		self.stone_y = 0
 		
@@ -139,11 +145,22 @@ class TetrisApp(object):
 		self.board = new_board()
 		self.new_stone()
 	
+	def disp_msg(self, msg, topleft):
+		x,y = topleft
+		for line in msg.splitlines():
+			self.screen.blit(
+				self.default_font.render(
+					line,
+					False,
+					(255,255,255),
+					(0,0,0)),
+				(x,y))
+			y+=14
+	
 	def center_msg(self, msg):
 		for i, line in enumerate(msg.splitlines()):
-			msg_image =  pygame.font.Font(
-				pygame.font.get_default_font(), 12).render(
-					line, False, (255,255,255), (0,0,0))
+			msg_image =  self.default_font.render(line, False,
+				(255,255,255), (0,0,0))
 		
 			msgim_center_x, msgim_center_y = msg_image.get_size()
 			msgim_center_x //= 2
@@ -246,10 +263,18 @@ Press space to continue""")
 				if self.paused:
 					self.center_msg("Paused")
 				else:
+					pygame.draw.line(self.screen,
+						(255,255,255),
+						(self.rlim+1, 0),
+						(self.rlim+1, self.height-1))
+					self.disp_msg("Next:", (
+						self.rlim+config['cell_size'],
+						2))
 					self.draw_matrix(self.board, (0,0))
 					self.draw_matrix(self.stone,
-					                 (self.stone_x,
-					                  self.stone_y))
+						(self.stone_x, self.stone_y))
+					self.draw_matrix(self.next_stone,
+						(config['cols']+1,2))
 			pygame.display.update()
 			
 			for event in pygame.event.get():
