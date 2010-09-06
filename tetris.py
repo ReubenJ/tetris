@@ -288,8 +288,8 @@ class TetrisApp(object):
 		while 1:
 			self.screen.fill((0,0,0))
 			if self.gameover:
-				self.center_msg("""Game Over!
-Press space to continue""")
+				self.center_msg("""Game Over!\nYour score: %d
+Press space to continue""" % self.score)
 			else:
 				if self.paused:
 					self.center_msg("Paused")
