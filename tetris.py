@@ -3,8 +3,8 @@
 
 # NOTE FOR WINDOWS USERS:
 # You can download a "exefied" version of this game at:
-# http://kch42.de/progs/tetris_py_exefied.zip
-# If a DLL is missing or something like this, write an E-Mail (kevin@kch42.de)
+# http://hi-im.laria.me/progs/tetris_py_exefied.zip
+# If a DLL is missing or something like this, write an E-Mail (me@laria.me)
 # or leave a comment on this gist.
 
 # Very simple tetris implementation
@@ -19,7 +19,7 @@
 #
 # Have fun!
 
-# Copyright (c) 2010 "Kevin Chabowski"<kevin@kch42.de>
+# Copyright (c) 2010 "Laria Carolin Chabowski"<me@laria.me>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
