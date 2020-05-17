@@ -40,7 +40,9 @@ from random import randrange as rand
 import pygame, sys
 
 # The configuration
-cell_size = 18
+screen_scale = 2
+text_size = 12 * screen_scale
+cell_size = 18 * screen_scale
 cols =      10
 rows =      22
 maxfps =    30
@@ -126,7 +128,7 @@ class TetrisApp(object):
         self.bground_grid = [[ 8 if x%2==y%2 else 0 for x in range(cols)] for y in range(rows)]
 
         self.default_font =  pygame.font.Font(
-            pygame.font.get_default_font(), 12)
+            pygame.font.get_default_font(), text_size)
 
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.event.set_blocked(pygame.MOUSEMOTION) # We do not need
@@ -165,7 +167,7 @@ class TetrisApp(object):
                     (255,255,255),
                     (0,0,0)),
                 (x,y))
-            y+=14
+            y+=14 * screen_scale
 
     def center_msg(self, msg):
         for i, line in enumerate(msg.splitlines()):
@@ -288,8 +290,8 @@ class TetrisApp(object):
         while 1:
             self.screen.fill((0,0,0))
             if self.gameover:
-                self.center_msg("""Game Over!\nYour score: %d
-Press space to continue""" % self.score)
+                self.center_msg(""" Game Over!\nYour score: %d
+                                    Press space to continue""" % self.score)
             else:
                 if self.paused:
                     self.center_msg("Paused")
@@ -301,8 +303,8 @@ Press space to continue""" % self.score)
                     self.disp_msg("Next:", (
                         self.rlim+cell_size,
                         2))
-                    self.disp_msg("Score: %d\n\nLevel: %d\
-\nLines: %d" % (self.score, self.level, self.lines),
+                    self.disp_msg(" Score: %d\n\nLevel: %d\
+                                    \nLines: %d" % (self.score, self.level, self.lines),
                         (self.rlim+cell_size, cell_size*5))
                     self.draw_matrix(self.bground_grid, (0,0))
                     self.draw_matrix(self.board, (0,0))
