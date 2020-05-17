@@ -65,7 +65,7 @@ class Tetris:
             self.stone_y += 1
             if self.check_collision(self.board, self.stone, (self.stone_x, self.stone_y)):
                 self.board = self.join_matrices(self.board, self.stone, (self.stone_x, self.stone_y))
-                self.new_stone()
+                self.stone, self.stone_x, self.stone_y, self.next_stone = self.new_stone()
                 cleared_rows = 0
                 while True:
                     for i, row in enumerate(self.board[:-1]):
@@ -83,6 +83,11 @@ class Tetris:
                 return True
         return False
 
+    def instant_drop(self):
+        if not self.game_over:
+            while not self.drop(manual=True):
+                pass
+
     def move(self, delta_x):
         if not self.game_over:
             new_x = self.stone_x + delta_x
@@ -92,11 +97,6 @@ class Tetris:
                 new_x = self.cols - len(self.stone[0])
             if not self.check_collision(self.board, self.stone, (new_x, self.stone_y)):
                 self.stone_x = new_x
-
-    def instant_drop(self):
-        if not self.game_over:
-            while not self.drop(manual=True):
-                pass
 
     def remove_row(self, board, row):
         del board[row]
@@ -124,13 +124,8 @@ class Tetris:
     @staticmethod
     def join_matrices(mat1, mat2, mat2_off):
         off_x, off_y = mat2_off
-        print("off_y:", off_y)
         for cy, row in enumerate(mat2):
             for cx, val in enumerate(row):
-                try:
-                    mat1[cy + off_y - 1][cx + off_x] += val
-                except IndexError as e:
-                    print(cy, off_y, cx, off_x)
-                    print(cy + off_y - 1, cx + off_x)
-                    raise e
+                mat1[cy + off_y - 1][cx + off_x] += val
+
         return mat1

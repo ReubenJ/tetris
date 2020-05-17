@@ -44,30 +44,33 @@ from tetris import Tetris
 
 
 class App(object):
-    def __init__(self, rows=22, cols=10, scale=1, slow=True):
+    def __init__(self, rows=22, cols=10, scale=1, slow=True, display=True):
+        self.display = display
         self.slow = slow
-        self.line_height = common.line_height * scale
-        self.text_size = common.text_size * scale
-        self.cell_size = common.cell_size * scale
-        self.width = common.cell_size * (cols + 6)
-        self.height = common.cell_size * rows
-        self.rlim = common.cell_size * cols
-
-        pygame.init()
-        pygame.key.set_repeat(250, 25)
-
-        self.bground_grid = [[8 if x % 2 == y % 2 else 0 for x in range(cols)] for y in range(rows)]
-
-        self.default_font = pygame.font.Font(
-            pygame.font.get_default_font(), self.text_size)
-
-        self.screen = pygame.display.set_mode((self.width, self.height))
-        pygame.event.set_blocked(pygame.MOUSEMOTION)  # block mouse events, not needed
-
-        self.paused = False
         self.game = Tetris(rows, cols)
 
-        pygame.time.set_timer(pygame.USEREVENT + 1, self.game.delay)
+        if self.display:
+            self.line_height = common.line_height * scale
+            self.text_size = common.text_size * scale
+            self.cell_size = common.cell_size * scale
+            self.width = self.cell_size * (cols + 6)
+            self.height = self.cell_size * rows
+            self.rlim = self.cell_size * cols
+
+            pygame.init()
+            pygame.key.set_repeat(250, 25)
+
+            self.bground_grid = [[8 if x % 2 == y % 2 else 0 for x in range(cols)] for y in range(rows)]
+
+            self.default_font = pygame.font.Font(
+                pygame.font.get_default_font(), self.text_size)
+
+            self.screen = pygame.display.set_mode((self.width, self.height))
+            pygame.event.set_blocked(pygame.MOUSEMOTION)  # block mouse events, not needed
+
+            self.paused = False
+
+            pygame.time.set_timer(pygame.USEREVENT + 1, self.game.delay)
 
     def display_msg(self, msg, top_left):
         x, y = top_left
@@ -99,28 +102,28 @@ class App(object):
         for y, row in enumerate(matrix):
             for x, val in enumerate(row):
                 if val:
-                    try:
-                        pygame.draw.rect(
-                            self.screen,
-                            common.colors[val],
-                            pygame.Rect(
-                                (off_x + x) *
-                                common.cell_size,
-                                (off_y + y) *
-                                common.cell_size,
-                                common.cell_size,
-                                common.cell_size), 0)
-                    except IndexError as e:
-                        print("val:", val)
-                        raise e
+                    pygame.draw.rect(
+                        self.screen,
+                        common.colors[val],
+                        pygame.Rect(
+                            (off_x + x) *
+                            self.cell_size,
+                            (off_y + y) *
+                            self.cell_size,
+                            self.cell_size,
+                            self.cell_size), 0)
 
     def quit(self):
+        self.screen.fill((0, 0, 0))
         self.center_msg("Exiting...")
         pygame.display.update()
         sys.exit()
 
     def toggle_pause(self):
         self.paused = not self.paused
+
+    def toggle_slow(self):
+        self.slow = not self.slow
 
     def start_game(self):
         if self.game.game_over:
@@ -137,7 +140,9 @@ class App(object):
             'UP': self.game.rotate_stone,
             'p': self.toggle_pause,
             'SPACE': self.start_game,
-            'RETURN': self.game.instant_drop
+            'RETURN': self.game.instant_drop,
+            'q': self.quit,
+            's': self.toggle_slow
         }
 
         clock = pygame.time.Clock()
@@ -155,11 +160,11 @@ class App(object):
                                      (self.rlim + 1, 0),
                                      (self.rlim + 1, self.height - 1))
                     self.display_msg("Next:", (
-                        self.rlim + common.cell_size,
+                        self.rlim + self.cell_size,
                         2))
                     self.display_msg(" Score: %d\n\nLevel: %d\
                                     \nLines: %d" % (self.game.score, self.game.level, self.game.lines),
-                                     (self.rlim + common.cell_size, common.cell_size * 5))
+                                     (self.rlim + self.cell_size, self.cell_size * 5))
                     self.draw_matrix(self.bground_grid, (0, 0))
                     self.draw_matrix(self.game.board, (0, 0))
                     self.draw_matrix(self.game.stone,
@@ -174,9 +179,11 @@ class App(object):
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                     self.toggle_pause()
 
-                elif self.slow and not self.paused:
+                elif not self.paused:
                     if event.type == pygame.USEREVENT + 1:
-                        self.game.drop(manual=False)
+                        if self.slow:
+                            self.game.drop(manual=False)
+                            pygame.time.set_timer(pygame.USEREVENT + 1, self.game.delay)
                     elif event.type == pygame.KEYDOWN:
                         for key in key_actions:
                             if event.key == eval("pygame.K_" + key):
@@ -184,8 +191,10 @@ class App(object):
 
             if self.slow:
                 clock.tick(common.maxfps)
+            else:
+                self.game.drop(manual=False)
 
 
 if __name__ == '__main__':
-    app = App()
+    app = App(scale=2)
     app.run()
