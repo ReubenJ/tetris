@@ -44,10 +44,15 @@ from tetris import Tetris
 
 
 class App(object):
-    def __init__(self, rows=22, cols=10, scale=1, slow=True, display=True):
+    def __init__(self, rows=22, cols=10, scale=1, slow=True, display=True, manual=True):
         self.display = display
         self.slow = slow
         self.game = Tetris(rows, cols)
+        self.manual = True
+
+        if manual and not display:
+            print("Display disabled but manual control enabled. Modify the parameters with which the app"
+                  "is instantiated to change this.", file=sys.stderr)
 
         if self.display:
             self.line_height = common.line_height * scale
@@ -117,7 +122,6 @@ class App(object):
         self.screen.fill((0, 0, 0))
         self.center_msg("Exiting...")
         pygame.display.update()
-        sys.exit()
 
     def toggle_pause(self):
         self.paused = not self.paused
@@ -141,53 +145,55 @@ class App(object):
             'p': self.toggle_pause,
             'SPACE': self.start_game,
             'RETURN': self.game.instant_drop,
-            'q': self.quit,
+            'q': lambda: self.quit(),
             's': self.toggle_slow
         }
-
-        clock = pygame.time.Clock()
+        clock = None
+        if self.display:
+            clock = pygame.time.Clock()
         while 1:
-            self.screen.fill((0, 0, 0))
-            if self.game.game_over:
-                self.center_msg(""" Game Over!\nYour score: %d
-                                    Press space to continue""" % self.game.score)
-            else:
-                if self.paused:
-                    self.center_msg("Paused")
+            if self.display:
+                self.screen.fill((0, 0, 0))
+                if self.game.game_over:
+                    self.center_msg(""" Game Over!\nYour score: %d
+                                        Press space to continue""" % self.game.score)
                 else:
-                    pygame.draw.line(self.screen,
-                                     (255, 255, 255),
-                                     (self.rlim + 1, 0),
-                                     (self.rlim + 1, self.height - 1))
-                    self.display_msg("Next:", (
-                        self.rlim + self.cell_size,
-                        2))
-                    self.display_msg(" Score: %d\n\nLevel: %d\
-                                    \nLines: %d" % (self.game.score, self.game.level, self.game.lines),
-                                     (self.rlim + self.cell_size, self.cell_size * 5))
-                    self.draw_matrix(self.bground_grid, (0, 0))
-                    self.draw_matrix(self.game.board, (0, 0))
-                    self.draw_matrix(self.game.stone,
-                                     (self.game.stone_x, self.game.stone_y))
-                    self.draw_matrix(self.game.next_stone,
-                                     (self.game.cols + 1, 2))
-            pygame.display.update()
+                    if self.paused:
+                        self.center_msg("Paused")
+                    else:
+                        pygame.draw.line(self.screen,
+                                         (255, 255, 255),
+                                         (self.rlim + 1, 0),
+                                         (self.rlim + 1, self.height - 1))
+                        self.display_msg("Next:", (
+                            self.rlim + self.cell_size,
+                            2))
+                        self.display_msg(" Score: %d\n\nLevel: %d\
+                                        \nLines: %d" % (self.game.score, self.game.level, self.game.lines),
+                                         (self.rlim + self.cell_size, self.cell_size * 5))
+                        self.draw_matrix(self.bground_grid, (0, 0))
+                        self.draw_matrix(self.game.board, (0, 0))
+                        self.draw_matrix(self.game.stone,
+                                         (self.game.stone_x, self.game.stone_y))
+                        self.draw_matrix(self.game.next_stone,
+                                         (self.game.cols + 1, 2))
+                pygame.display.update()
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.quit()
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_p:
-                    self.toggle_pause()
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        return self.quit()
+                    elif event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                        self.toggle_pause()
 
-                elif not self.paused:
-                    if event.type == pygame.USEREVENT + 1:
-                        if self.slow:
-                            self.game.drop(manual=False)
-                            pygame.time.set_timer(pygame.USEREVENT + 1, self.game.delay)
-                    elif event.type == pygame.KEYDOWN:
-                        for key in key_actions:
-                            if event.key == eval("pygame.K_" + key):
-                                key_actions[key]()
+                    elif not self.paused:
+                        if event.type == pygame.USEREVENT + 1:
+                            if self.slow:
+                                self.game.drop(manual=False)
+                                pygame.time.set_timer(pygame.USEREVENT + 1, self.game.delay)
+                        elif event.type == pygame.KEYDOWN:
+                            for key in key_actions:
+                                if event.key == eval("pygame.K_" + key):
+                                    key_actions[key]()
 
             if self.slow:
                 clock.tick(common.maxfps)
