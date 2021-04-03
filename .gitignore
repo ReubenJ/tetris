@@ -1,3 +1,18 @@
+##########################
+# Rust related gitignore #
+##########################
+
+/target
+**/*.rs.bk
+Cargo.lock
+bin/
+pkg/
+wasm-pack.log
+
+############################
+# Python related gitignore #
+############################
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

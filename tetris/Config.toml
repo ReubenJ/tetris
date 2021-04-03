@@ -1,0 +1,7 @@
+[game]
+cols = 10
+rows = 22
+
+[ui]
+screen_scale = 2
+maxfps = 30

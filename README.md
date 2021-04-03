@@ -1,5 +1,5 @@
 # Python Tetris
 
-Implementation for tetris AI experimentation.
+GA based tetris implemented in rust (wasm)
 
-Modified from [silvasur's gist](https://gist.github.com/silvasur/565419).
+Original python code from [silvasur's gist](https://gist.github.com/silvasur/565419).
